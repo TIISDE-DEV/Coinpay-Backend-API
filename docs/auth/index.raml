@@ -1,0 +1,138 @@
+#%RAML 1.0
+title: Coinpay API
+version: v1
+baseUri: http://api.example.com/api/v1
+mediaType: application/json
+
+/auth:
+  post:
+    description: Autenticação de usuário via email e senha
+    body:
+      application/json:
+        type: object
+        properties:
+          email: string
+          password: string
+    responses:
+      200:
+        description: Autenticação bem-sucedida
+        body:
+          application/json:
+            type: object
+            properties:
+              access_token:
+                type: string
+                description: Token de acesso válido por 15 minutos
+              refresh_token:
+                type: string
+                description: Token de renovação válido por 30 dias
+      400:
+        description: Requisição inválida (dados ausentes ou malformados)
+        body:
+          application/json:
+            type: object
+            properties:
+              error:
+                type: string
+                description: Mensagem de erro
+                example: "Dados inválidos"
+      401:
+        description: Não autorizado (email ou senha inválidos)
+        body:
+          application/json:
+            type: object
+            properties:
+              error:
+                type: string
+                description: Mensagem de erro
+                example: "Email ou senha inválidos"
+      500:
+        description: Erro interno do servidor
+        body:
+          application/json:
+            type: object
+            properties:
+              error:
+                type: string
+                description: Mensagem de erro
+                example: "Erro ao processar a requisição"
+
+  /refresh:
+    post:
+      description: Renovação de token de acesso usando refresh token
+      body:
+        application/json:
+          type: object
+          properties:
+            refresh_token:
+              type: string
+              description: Token de renovação
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh.abc123"
+      responses:
+        200:
+          description: Renovação bem-sucedida
+          body:
+            application/json:
+              type: object
+              properties:
+                access_token:
+                  type: string
+                  description: Novo token de acesso válido por 15 minutos
+        400:
+          description: Requisição inválida (token ausente ou malformado)
+          body:
+            application/json:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Mensagem de erro
+                  example: "Refresh token inválido ou ausente"
+        401:
+          description: Não autorizado (refresh token inválido ou expirado)
+          body:
+            application/json:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Mensagem de erro
+                  example: "Refresh token inválido ou expirado"
+        500:
+          description: Erro interno do servidor
+          body:
+            application/json:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Mensagem de erro
+                  example: "Erro ao processar a requisição"
+
+types:
+  AuthRequest:
+    type: object
+    properties:
+      email: string
+      password: string
+
+  AuthResponse:
+    type: object
+    properties:
+      access_token: string
+      refresh_token: string
+
+  RefreshRequest:
+    type: object
+    properties:
+      refresh_token: string
+
+  RefreshResponse:
+    type: object
+    properties:
+      access_token: string
+
+  ErrorResponse:
+    type: object
+    properties:
+      error: string
